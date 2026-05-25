@@ -19,7 +19,7 @@ async function getNextId(sheets) {
     range: `${SHEET_NAME}!A:A`,
   });
   const rows = res.data.values || [];
-  return rows.length; // row 1 = header, so length = next ID
+  return rows.length;
 }
 
 async function appendCandidate(data) {
@@ -47,7 +47,7 @@ async function appendCandidate(data) {
     data.workedBefore,
     data.prevLocation || '',
     data.workDateRange || '',
-    data.whatsappNumber,
+    data.telegramId,
     data.submittedAt,
   ];
 
@@ -80,7 +80,7 @@ async function initSheet() {
           'Shift Preference', 'Cities', 'Visa Status', 'SIN Number',
           'Date of Birth', 'Address', 'Postal Code', 'Landing Date in Canada',
           'Worked at Amazon Before', 'Previous Amazon Location',
-          'Work Date Range', 'WhatsApp Number', 'Submission Timestamp',
+          'Work Date Range', 'Telegram Chat ID', 'Submission Timestamp',
         ]],
       },
     });

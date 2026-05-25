@@ -7,18 +7,18 @@ const SESSION_TIMEOUT_MS = 24 * 60 * 60 * 1000;
 
 const sessions = new Map();
 
-function getSession(phone) {
-  return sessions.get(phone) || null;
+function getSession(chatId) {
+  return sessions.get(chatId) || null;
 }
 
-function createSession(phone) {
+function createSession(chatId) {
   const session = { step: 1, data: {}, startedAt: Date.now() };
-  sessions.set(phone, session);
+  sessions.set(chatId, session);
   return session;
 }
 
-function clearSession(phone) {
-  sessions.delete(phone);
+function clearSession(chatId) {
+  sessions.delete(chatId);
 }
 
 function isExpired(session) {
@@ -44,24 +44,24 @@ function nextStep(session) {
   return session.step + 1;
 }
 
-async function handleMessage(phone, text) {
+async function handleMessage(chatId, text) {
   const input = text.trim();
 
-  let session = getSession(phone);
-
   if (input.toLowerCase() === 'restart' || input.toLowerCase() === 'start over') {
-    clearSession(phone);
-    const newSession = createSession(phone);
+    clearSession(chatId);
+    createSession(chatId);
     return `${WELCOME}\n\n${PROMPTS[1]}`;
   }
 
+  let session = getSession(chatId);
+
   if (!session) {
-    const newSession = createSession(phone);
+    createSession(chatId);
     return `${WELCOME}\n\n${PROMPTS[1]}`;
   }
 
   if (isExpired(session)) {
-    clearSession(phone);
+    clearSession(chatId);
     return SESSION_EXPIRED;
   }
 
@@ -78,7 +78,7 @@ async function handleMessage(phone, text) {
   const next = nextStep(session);
 
   if (next === 'done') {
-    session.data.whatsappNumber = phone;
+    session.data.telegramId = chatId;
     session.data.submittedAt = moment().tz('America/Toronto').format('YYYY-MM-DD HH:mm:ss');
 
     try {
@@ -87,7 +87,7 @@ async function handleMessage(phone, text) {
       console.error('Sheets error:', err.message);
     }
 
-    clearSession(phone);
+    clearSession(chatId);
     return CLOSING;
   }
 
